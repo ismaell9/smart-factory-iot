@@ -1,2 +1,22 @@
 __pycache__/
 *.pyc
+
+# PlatformIO build artifacts
+.pio/
+
+# Log files
+log/
+
+# Compiled binaries
+simulation/simulator
+
+# Virtual environment
+.venv/
+
+# Editor/IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
