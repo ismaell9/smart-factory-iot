@@ -1,110 +1,210 @@
 # Smart Factory IoT Digital Twin
 
-A real-time Streamlit dashboard simulating a smart factory with 50 IoT sensors, an autonomous robot, AI-driven anomaly detection, and interactive controls.
+A real-time digital twin of a smart factory with 50 IoT sensors. The simulation runs as a native **C++ binary** publishing MQTT telemetry to a public broker, consumed by a **Streamlit dashboard** for visualization, anomaly detection, and interactive control.
+
+## Architecture
+
+```
+┌──────────────────────┐     MQTT      ┌─────────────────────┐     Streamlit     ┌──────────────┐
+│  C++ Simulator       │ ────────────▶ │  Python Subscriber  │ ────────────────▶ │  Dashboard   │
+│  (simulator.cpp)     │  broker.emqx  │  (mqtt_receiver.py) │   localhost:8501  │  (app.py)     │
+│  50 virtual sensors  │   .io:1883    │  caches last batch  │                   │  Altair map   │
+│                      │               │                     │                   │  AI alerts    │
+│  ESP32 Firmware ◀────┘               └─────────────────────┘                   │  CSV export   │
+│  (sketch.ino)*       │                                                        └──────────────┘
+└──────────────────────┘
+```
+
+The dashboard has two data source modes (toggle via top bar button):
+- **Random** — local Python simulation (no MQTT needed)
+- **MQTT** — live sensor data from the C++ simulator (or physical ESP32)
 
 ## Features
 
 ### Factory Floor Map
-- **3 operational zones**: Assembly (A), Logistics (B), Safety (C)
-- **50 sensors** (10 types × 5 each) plotted as color-coded nodes:
-  - Zone A: Temp, Vibration, Current, Light
-  - Zone B: Humidity, Ultrasonic, IR
-  - Zone C: Pressure, Smoke, Fire
-- **Autonomous robot** (yellow diamond) navigates toward fault/override sensors at double speed, otherwise patrols random waypoints
-- **Hover tooltips** on sensor nodes (via Altair interactive chart below the map) showing ID, type, value, and status
+- **3 zones**: Assembly (A), Logistics (B), Safety (C)
+- **50 sensors** (10 types × 5 each) plotted as color-coded dots with ID + value labels
+- **Autonomous robot** (yellow diamond) navigates toward fault/override sensors, patrols otherwise
+- **Hover tooltips** showing ID, type, zone, value, base, status
 
-### Simulation Engine
-- Each sensor fluctuates with ±2% Gaussian noise around its baseline
-- **Fault injection**: Random (3 sensors) or ALL — sets override values at 1.6× or 2.0× baseline for 15 seconds
-- Sensors auto-detect **ANOMALY** status when value exceeds 1.3× baseline
-- Status color code: 🟢 NORMAL, 🟡 OVERRIDE, 🔴 ANOMALY
+### Simulation Engine (C++ native)
+- Each sensor fluctuates with Gaussian noise around its baseline
+- **Fault injection**: Random 3 sensors or ALL — overrides at 1.6×/2.0× baseline for 15 s
+- Sensors auto-detect **ANOMALY** when value exceeds 1.3× baseline
+- Publishes JSON to `factory/sensors/all` every 1 second
 
-### Controls (top bar)
-- **Start/Stop** simulation
-- **AI toggle** to enable/disable anomaly detection
-- **Sidebar**: Fault injection buttons (Random 3 / ALL)
-
-### Right Panel
-1. **AI Analytics** — real-time summaries: avg/max temperature, fault count, total alerts
-2. **AI Alerts** — last 6 alerts with severity color (HIGH = red, MEDIUM = yellow)
-3. **Robot Teleport** — X/Y sliders to reposition the robot instantly
-4. **Sensor Override** — select any sensor, set a custom value and duration
-
-### Sensor Data Table (below map)
-- Live snapshot of all 50 sensors: Timestamp, ID, Type, Zone, Value, Base, Dev %, Status
-- **Interactive hover chart** (Altair) — hover to see ID, type, value, status
-- **Sensor details popup** — select a sensor → popover with full details + history line chart
-- **Download CSV** (appears when stopped) — exports complete session history (all readings across all sensors)
+### Controls
+- **Start / Stop** simulation
+- **AI toggle** for anomaly detection
+- **Sidebar**: Fault injection, Sensor Override, MQTT data source selection
 
 ### AI Anomaly Detection
-- **Threshold alert**: value exceeds 130% of baseline → HIGH alert + toast notification + beep sound
-- **Trend alert**: monotonically rising values over 10 consecutive samples → MEDIUM alert
-- **Sound** (Windows): `winsound.Beep(880Hz, 300ms)` on HIGH alerts
+- **Threshold alert**: value > 130% baseline → HIGH alert + toast
+- **Trend alert**: 10 consecutive rising samples → MEDIUM alert
+- Real-time summaries: avg/max temperature, fault count, total alerts
 
-## Tech Stack
+### Data Export
+- **Download CSV** (when stopped) — full session history across all sensors
+- Status logging: NORMAL, ANOMALY, OVERRIDE, UNKNOWN
 
-| Component | Technology |
-|-----------|-----------|
-| Dashboard | Streamlit |
-| Map rendering | Matplotlib |
-| Interactive chart | Altair (shipped with Streamlit) |
-| Data processing | Pandas, NumPy |
-| Sound alerts | winsound (Windows) |
-| MQTT bridge | paho-mqtt (optional, configured in config.py) |
+## Data Format
+
+All sources (C++ simulator, ESP32 firmware, Python) publish identical JSON:
+
+```json
+{"id":"T1","type":"Temp","zone":"A","value":45.2,"base":45,"status":"NORMAL"}
+```
+
+| Field   | Description                        |
+|---------|------------------------------------|
+| id      | Sensor ID (e.g. T1, V3, P5)       |
+| type    | Sensor type (Temp, Vibration, ...) |
+| zone    | Zone A, B, or C                    |
+| value   | Current reading                    |
+| base    | Baseline value                     |
+| status  | NORMAL / ANOMALY / OVERRIDE        |
 
 ## Sensors
 
-| Type | Base Value | Zone | Count |
-|------|-----------|------|-------|
-| Temp | 45 | A | 5 |
-| Vibration | 2.5 | A | 5 |
-| Current | 12 | A | 5 |
-| Light | 500 | A | 5 |
-| Humidity | 45 | B | 5 |
-| Ultrasonic | 2.0 | B | 5 |
-| IR | 1.0 | B | 5 |
-| Pressure | 101.3 | C | 5 |
-| Smoke | 10 | C | 5 |
-| Fire | 5 | C | 5 |
+| Type       | Base   | Zone | Count |
+|------------|--------|------|-------|
+| Temp       | 45     | A    | 5     |
+| Vibration  | 2.5    | A    | 5     |
+| Current    | 12     | A    | 5     |
+| Light      | 500    | A    | 5     |
+| Humidity   | 45     | B    | 5     |
+| Ultrasonic | 2.0    | B    | 5     |
+| IR         | 1.0    | B    | 5     |
+| Pressure   | 101.3  | C    | 5     |
+| Smoke      | 10     | C    | 5     |
+| Fire       | 5      | C    | 5     |
 
-## Getting Started
+## Tech Stack
+
+| Component          | Technology                      |
+|--------------------|---------------------------------|
+| Simulation engine  | C++ (native binary, g++)        |
+| Dashboard          | Streamlit                       |
+| Map + chart        | Altair                          |
+| Data processing    | Pandas, NumPy                   |
+| MQTT broker        | broker.emqx.io (public)         |
+| MQTT (C++)         | POSIX sockets (minimal client)  |
+| MQTT (Python)      | paho-mqtt                       |
+| ESP32 firmware     | Arduino framework, PubSubClient |
+
+## Installation
+
+### Prerequisites
+- Python 3.10+
+- g++ (for C++ simulator)
+- pip
+
+### Setup
 
 ```bash
-cd smart_factory
-pip install -r requirements.txt
-streamlit run app.py
+git clone https://github.com/ismaell9/smart-factory-iot.git
+cd smart-factory-iot
+
+python3 -m venv .venv
+source .venv/bin/activate
+
+pip install -r smart_factory/requirements.txt
 ```
 
-Open http://localhost:8501 in your browser.
+## Usage
 
-### Optional Dependencies
-- `matplotlib` — factory floor map with zone rectangles
-- `winsound` — alert beeps (Windows only, included in standard library)
+### Quick start (simulator + dashboard)
+
+```bash
+./run.sh
+```
+
+The script:
+1. Compiles `simulation/simulator.cpp` if needed
+2. Kills any old instances
+3. Starts the C++ simulator (publishes to broker.emqx.io)
+4. Starts the Streamlit dashboard
+
+Open the URL shown in the terminal, then click **📡 MQTT: OFF → ON** in the top bar.
+
+### Stop
+
+```bash
+./run.sh stop
+```
+
+Sends an MQTT STOP command, then force-kills remaining processes.
+
+### Run dashboard only (local simulation, no MQTT)
+
+```bash
+source .venv/bin/activate
+streamlit run smart_factory/app.py
+```
+
+Dashboard works in **Random** mode without any MQTT broker — click Start to begin.
 
 ## Project Structure
 
 ```
 .
+├── run.sh                          # Launcher (compiles, starts sim + dashboard)
+├── simulation/
+│   ├── simulator.cpp               # C++ native simulator (50 sensors, MQTT publisher)
+│   ├── sketch.ino                  # Canonical ESP32 firmware source
+│   ├── stop_sim.py                 # Publishes STOP command via MQTT
+│   ├── diagram.json                # Wokwi wiring diagram
+│   ├── libraries.txt               # Wokwi library list
+│   └── wokwi/                      # Wokwi VS Code project (standalone)
+│       ├── platformio.ini
+│       ├── wokwi.toml
+│       ├── diagram.json
+│       ├── src/sketch.ino
+│       └── ...
 ├── smart_factory/
-│   ├── app.py                 # Main Streamlit dashboard
-│   ├── config.py              # MQTT broker settings
-│   ├── sensor_sim.py          # Sensor simulation logic
-│   ├── mqtt_publisher.py      # MQTT telemetry publisher
-│   ├── ai_anomaly_detector.py # AI detection engine
-│   ├── fault_injector.py      # Fault injection module
-│   ├── dashboard.py           # Alternative dashboard
-│   ├── main.py                # Entry point
-│   ├── run_all.py             # Launch all components
-│   └── requirements.txt       # Python dependencies
-├── README.md
+│   ├── app.py                      # Streamlit dashboard (main entry point)
+│   ├── config.py                   # MQTT broker configuration
+│   ├── mqtt_receiver.py            # MQTT subscriber thread (caches last data)
+│   ├── mqtt_publisher.py           # Python MQTT publisher (legacy)
+│   ├── sensor_sim.py               # Local Python sensor simulation (Random mode)
+│   ├── fault_injector.py           # Fault injection logic
+│   ├── ai_anomaly_detector.py      # AI threshold + trend detection
+│   ├── dashboard.py, main.py, run_all.py, publisher.py  # Legacy entries
+│   └── requirements.txt            # Python dependencies
+├── log/                            # Runtime logs (gitignored)
 └── .gitignore
 ```
 
-## Usage Tips
+## Wokwi (ESP32 Firmware)
 
-1. Click **Start** to begin simulation
-2. Inject faults via sidebar to see robot react
-3. Enable **AI Detection** for automated alerts
-4. Hover over the interactive scatter chart below the map to inspect sensors
-5. Use the **details selector** to view full sensor history
-6. Stop simulation and click **Download CSV** to export all session data
+> **Wokwi runs entirely separately** and does **not** affect the C++ simulation or the dashboard in any way.
+
+The `simulation/wokwi/` directory contains a complete PlatformIO project for the ESP32 firmware, identical in logic to the C++ simulator but designed for physical or emulated hardware:
+
+### Sensors (Wokwi/ESP32 only)
+
+| Sensor          | Pin  | ID      |
+|-----------------|------|---------|
+| DHT22 (Temp/Hum)| GPIO4| T1, H1  |
+| Potentiometer   | GPIO34| V1     |
+| Photoresistor   | GPIO35| L1     |
+| HC-SR04 (Ultr.) | GPIO5/18 | U1  |
+| Pushbutton      | GPIO19| Fault   |
+| LED             | GPIO2 | —       |
+
+### Running on Wokwi VS Code Extension (free tier)
+
+1. Open `simulation/wokwi/` in VS Code
+2. Install **Wokwi Simulator** extension
+3. Press **F1 → Wokwi: Start Simulator**
+4. Firmware runs locally — **MQTT will NOT work** (free Wokwi Gateway doesn't forward internet traffic)
+5. Test locally: serial output, LED blink, button input
+
+### Running on Wokwi.com (online, MQTT works)
+
+1. Go to [wokwi.com](https://wokwi.com)
+2. Create a new project, upload the files from `simulation/wokwi/`
+3. Start the simulation — the ESP32 connects to `broker.emqx.io:1883` and publishes to `factory/sensors/all`
+4. Dashboard picks up the data when MQTT mode is enabled
+
+The `simulation/sketch.ino` is the **canonical firmware source** — `simulation/wokwi/src/sketch.ino` is kept in sync.
