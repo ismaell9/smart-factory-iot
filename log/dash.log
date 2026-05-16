@@ -1,0 +1,86 @@
+
+Collecting usage statistics. To deactivate, set browser.gatherUsageStats to false.
+
+2026-05-16 16:53:39.175 Uvicorn server started on 0.0.0.0:8501
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://192.168.1.19:8501
+  External URL: http://217.52.228.34:8501
+
+[MQTT] Starting receiver...
+[MQTT DEBUG] got 0 sensors
+[MQTT] Connected (rc=Success)
+[MQTT DEBUG] got 0 sensors
+[MQTT DEBUG] got 0 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors
+[MQTT DEBUG] got 50 sensors

@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "author": "Smart Factory IoT",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-esp32-devkit-v1", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-dht22",          "id": "dht1", "top": -5, "left": 50, "attrs": {} },
+    { "type": "wokwi-potentiometer",  "id": "pot1", "top": 20, "left": 50, "attrs": {} },
+    { "type": "wokwi-photoresistor",  "id": "phr1", "top": 45, "left": 50, "attrs": {} },
+    { "type": "wokwi-hc-sr04",        "id": "son1", "top": 70, "left": 50, "attrs": {} },
+    { "type": "wokwi-pushbutton",     "id": "btn1", "top": 95, "left": 50, "attrs": { "color": "red" } },
+    { "type": "wokwi-led",            "id": "led1", "top": -5, "left": 40, "attrs": { "color": "blue" } }
+  ],
+  "connections": [
+    [ "esp:TX0", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX0", "$serialMonitor:TX", "", [] ],
+    ["dht1:VCC", "esp:3V3", "red", ["v0.5"]],
+    ["dht1:GND", "esp:GND", "black", ["v0.5"]],
+    ["dht1:DATA", "esp:4", "green", ["v0.5"]],
+    ["pot1:VCC", "esp:3V3", "red", ["v0.5"]],
+    ["pot1:GND", "esp:GND", "black", ["v0.5"]],
+    ["pot1:OUT", "esp:34", "blue", ["v0.5"]],
+    ["phr1:VCC", "esp:3V3", "red", ["v0.5"]],
+    ["phr1:GND", "esp:GND", "black", ["v0.5"]],
+    ["phr1:OUT", "esp:35", "blue", ["v0.5"]],
+    ["son1:VCC", "esp:3V3", "red", ["v0.5"]],
+    ["son1:GND", "esp:GND", "black", ["v0.5"]],
+    ["son1:TRIG", "esp:5", "yellow", ["v0.5"]],
+    ["son1:ECHO", "esp:18", "orange", ["v0.5"]],
+    ["btn1:1", "esp:19", "purple", ["v0.5"]],
+    ["btn1:2", "esp:GND", "black", ["v0.5"]],
+    ["led1:A", "esp:2", "blue", []],
+    ["led1:C", "esp:GND", "black", []]
+  ],
+  "dependencies": []
+}
