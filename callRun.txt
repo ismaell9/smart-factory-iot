@@ -1,1 +1,0 @@
-/home/xom3a/Projects/smart-factory-iot/run.sh
